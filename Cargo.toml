@@ -2,8 +2,8 @@
 name = "DrawIOIcons"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+authors = ["Dhananjay Senday <hello@dhananajaay.dev>"] 
+description = "A library to convert VsCode Icons to DrawIO Icons"
 
 [dependencies]
 git2 = "0.18.1"
