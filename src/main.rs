@@ -1,4 +1,4 @@
-use std::{fs::DirEntry, vec};
+use std::{fs::DirEntry, vec, fmt::format};
 use git2::Repository;
 use base64::{Engine as _, engine::general_purpose};
 use serde::{Deserialize, Serialize};
@@ -12,48 +12,47 @@ struct SVGFile {
     aspect:String
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct FileStruct{
-    data:Vec<SVGFile>
-}
-
 fn main() {
     let mut accepted_image_file :Vec<DirEntry> = vec![];
     let mut  MxLIb:Vec<SVGFile> = vec![];
     const REPO_URL: &'static str = "https://github.com/vscode-icons/vscode-icons";
     const INPUT_FDR: &'static str = "input";
-    let folder_path = std::path::Path::new(INPUT_FDR);
-    if folder_path.is_dir(){
-        // std::fs::remove_dir_all(folder_path).unwrap_or_else(|err|{
-        //     // println!("Some Error Occured")
-        //     println!("{}",err)
-        // });
-        // println!("Removing Folder");
-        // std::fs::create_dir(folder_path).unwrap_or_else(|_|{
-        //     println!("Error Occured in Creating Folder")
-        // });
+    const OUTPUT_FDR: &'static str = "output";
+    const OUTPUT_FILE_NAME: &'static str = "Vs-Icon-By-Dhananjay.xml";
+    let input_folder_path = std::path::Path::new(INPUT_FDR);
+    let output_folder_path = std::path::Path::new(OUTPUT_FDR);
+    
+    if input_folder_path.is_dir(){
+        std::fs::remove_dir_all(input_folder_path).unwrap_or_else(|err|{
+            // println!("Some Error Occured")
+            println!("{}",err)
+        });
+        println!("Removing Folder");
+        std::fs::create_dir(input_folder_path).unwrap_or_else(|_|{
+            println!("Error Occured in Creating Folder")
+        });
         println!("Folder Creation Successful");
 
 
 
     }else {
         println!("Folder Doesn't Exits");
-        std::fs::create_dir(folder_path).unwrap_or_else(|_|{
+        std::fs::create_dir(input_folder_path).unwrap_or_else(|_|{
             println!("Error Occured in Creating Folder")
         });
         println!("Folder Creation Successful");
     }
     println!("Cloning File");
-    // match Repository::clone(REPO_URL, folder_path){
-    //     Ok(repo)=>{
-    //         println!("Clone Complete");
-    //         // for Files in FileIter{
+    match Repository::clone(REPO_URL, input_folder_path){
+        Ok(repo)=>{
+            println!("Clone Complete");
+            // for Files in FileIter{
         
-        //             // }
-        //         },
-        //         Err(e)=>todo!()
-        //     } 
-        let FileIter: std::fs::ReadDir = std::fs::read_dir(folder_path.join("icons")).unwrap();
+                    // }
+                },
+                Err(e)=>panic!("Unable to Clone Repo Panic !!!")
+            } 
+        let FileIter: std::fs::ReadDir = std::fs::read_dir(input_folder_path.join("icons")).unwrap();
         for images_files in FileIter{
             match images_files {
                 Ok(image)=>{
@@ -66,20 +65,12 @@ fn main() {
                     println!("Error Occured {} in Extracting FIle",Eer)
                 }
             }
-            // let ImagesLoc = images_files.unwrap_or_else(|_|{
-            //     println!("Images")
-            // })
-    // std::fs::read_dir(path)
-    // println!("{}",REPO_URL)
-    // match Repository::clone(REPO_URL, os::)
+           
 }
-
-println!("{}",accepted_image_file.len());
-
+println!("Generating Meta Data");
 for accepted_file in accepted_image_file{
     let Data = std::fs::read_to_string(accepted_file.path()).unwrap();
     let mut fileEcoded = "data:image/svg+xml;base64,".to_owned();
-    // println!("{}",Data)
     let encoded: String = general_purpose::STANDARD_NO_PAD.encode(Data);
     fileEcoded.push_str(&encoded);
     let DataNew = accepted_file.file_name();
@@ -95,16 +86,27 @@ for accepted_file in accepted_image_file{
         title:NewFileName.to_string(),
         aspect:"fixed".to_string()
     };
-    // let j = serde_json::to_string(&SvgEntry).unwrap();
     MxLIb.push(SvgEntry);
-    // println!("{}",j);
-
-    // Print, write to a file, or send to an HTTP server.
-    // println!("{}", j);
-
 
 }
 let FinalData: String = serde_json::to_string(&MxLIb).unwrap();
-let data = "Some data!";
-// std::fs::write("dhan.json", FinalData.as_bytes()).unwrap();
+let OutPutData = format!("{}{}{}","<mxlibrary>",FinalData,"</mxlibrary>");
+
+if !output_folder_path.is_dir(){
+    std::fs::create_dir(output_folder_path).unwrap_or_else(|_|{
+        println!("Error Occured Output Creating Folder")
+    });
+}else {
+    std::fs::remove_dir_all(output_folder_path).unwrap_or_else(|err|{
+        // println!("Some Error Occured")
+        println!("{}",err)
+    });
+    println!("Removing Output Folder");
+    std::fs::create_dir(output_folder_path).unwrap_or_else(|_|{
+        println!("Error Occured in Creating Folder")
+    });
+}
+println!("Output Folder Creation Successful");
+std::fs::write(output_folder_path.join(OUTPUT_FILE_NAME), OutPutData.as_bytes()).unwrap();
+println!("File Written to Disk Successfully")
 }
