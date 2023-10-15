@@ -25,5 +25,6 @@ And They are ready to Use
 ![image](https://github.com/Dhananjay-JSR/Vs-Code-Icons-Drawio/assets/47073516/62ca2afe-d15c-4d25-9053-ee37b6fd0fa5)
 
 ©Dhananjay Senday (2023)
+<br/>
 Discussion / PRs are welcome
 
